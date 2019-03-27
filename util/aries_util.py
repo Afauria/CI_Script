@@ -4,6 +4,7 @@ import os
 import subprocess
 
 import traceback
+from constant import CONFIG_CONST
 
 def mkdir(path):
     # 去除首位空格
@@ -39,13 +40,13 @@ def doSubprocess(command, result, is_record_to_file=False):
     print("doSubprocessPrintLog command: " + command)
 
     try:
-        subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+        result['output'] = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
         result["status"] = CONFIG_CONST.SUCCESS_STATUS
 
     except subprocess.CalledProcessError, exc:
         traceback.print_exc()
-        # if is_record_to_file == False:
-        #     result["errorLog"] = exc.output
+        if not is_record_to_file:
+            result["errorLog"] = exc.output
         # else:
         #     result["errorLog"] = writeErrorLog(exc.output)
         # result["status"] = CONFIG_CONST.FAIL_STATUS
@@ -73,10 +74,11 @@ if __name__ == '__main__':
     result = {
         'status': 1,
         'errorMsg': "",
-        'errorLog': ""
+        'errorLog': "",
+        'output': ""
     }
 
     uploadCommand = "cd /Users/zhusg/TuyaProject/TuyaBlueMesh && ./gradlew :bluemesh:upload"
     print("uploadCommand:" + uploadCommand)
-    result = doSubprocessRecordLog(uploadCommand, result, True)
+    result = doSubprocess(uploadCommand, result, True)
     print(result)
