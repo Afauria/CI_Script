@@ -6,19 +6,18 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-base_url = 'http://localhost:8080/'
+base_url = 'http://192.168.0.109:8083/'
 
 
 def post(url, data=None, **kwargs):
     response = requests.post(base_url + url, data)
     if 'callback' in kwargs:
-        kwargs['callback'](response)
+        kwargs['callback'](response.json())
 
 
 def get(url, data=None, **kwargs):
     response = requests.get(base_url + url, data)
     if not response.json()['success']:
-        print response.json()
         kwargs['callback'](response.json()['msg'])
     if 'callback' in kwargs:
         kwargs['callback'](response.json()['data'])

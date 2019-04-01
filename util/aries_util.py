@@ -36,9 +36,14 @@ def writeToFile(file_path, record):
     pass
 
 
-def doSubprocess(command, result, is_record_to_file=False):
+def doSubprocess(command, is_record_to_file=False):
     print("doSubprocessPrintLog command: " + command)
-
+    result = {
+        'status': 1,
+        'errorMsg': "",
+        'errorLog': "",
+        'output': ""
+    }
     try:
         result['output'] = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
         result["status"] = CONFIG_CONST.SUCCESS_STATUS
@@ -68,17 +73,3 @@ def doSubprocess(command, result, is_record_to_file=False):
 #     # print('oss_log_path', oss_log_path)
 #     return oss_log_path
 
-
-
-if __name__ == '__main__':
-    result = {
-        'status': 1,
-        'errorMsg': "",
-        'errorLog': "",
-        'output': ""
-    }
-
-    uploadCommand = "cd /Users/zhusg/TuyaProject/TuyaBlueMesh && ./gradlew :bluemesh:upload"
-    print("uploadCommand:" + uploadCommand)
-    result = doSubprocess(uploadCommand, result, True)
-    print(result)
