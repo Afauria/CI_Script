@@ -3,7 +3,7 @@
 import sys
 import argparse
 from util import aries_util
-from util.constant import CONFIG_CONST
+from util.constant import CONFIG_CONST,BUILD_STATUS
 from util import request
 
 reload(sys)
@@ -24,13 +24,13 @@ def modify_build_version(module_name, build_version):
 # metavar表示参数值，<>表示必填，通过-h参数能够查看帮助
 def _parse_args():
     parser = argparse.ArgumentParser(description='ci 组件构建发布脚本')
+    parser.add_argument('-m', metavar='<module id>', help='build id')
     parser.add_argument('-n', metavar='<module name>', help='模块名称')
     parser.add_argument('-c', metavar='<catalog>', help='工程目录')
     parser.add_argument('-v', metavar='<build version>', help='构建版本号')
     parser.add_argument('-k', metavar='<build hashkey>', help='构建消息的hashKey')
     parser.add_argument('-b', metavar='<build branch>', help='构建分支')
     parser.add_argument('-i', metavar='<build id>', help='build id')
-    parser.add_argument('-s', metavar='<spec>', help='定制组件名')
     return parser.parse_args()
 
 
@@ -39,20 +39,28 @@ def _parse_args():
 
 def main(args):
     print '-----组件构建-----'
+    module_id = args.m
     module_name = args.n
     build_version = args.v
+    build_num = args.i
     catalog = args.c
+    module_build_result = {
+        "moduleId": module_id,
+        "jobName": module_name,
+        "buildNum": build_num,
+        "version": build_version,
+        "buildStatus": BUILD_STATUS["SUCCESS"],
+        "message": "test"
+    }
     result = modify_build_version(module_name, build_version)
-    request.post("api/jenkins/notify", None, callback=ca)
     if result['status'] == CONFIG_CONST.FAIL_STATUS:
-        return
-        # result = upload_maven(module_name)
+        module_build_result["buildStatus"] = BUILD_STATUS["FAILURE"]
+        module_build_result["message"] = result['errorLog']
+    request.post("api/jenkins/notify/module", module_build_result)
+    # result = upload_maven(module_name)
     # if result['status'] == CONFIG_CONST.FAIL_STATUS:
     #     return
 
-
-def ca(data):
-    print data
 
 
 if __name__ == '__main__':

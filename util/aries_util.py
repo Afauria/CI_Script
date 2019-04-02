@@ -40,7 +40,6 @@ def doSubprocess(command, is_record_to_file=False):
     print("doSubprocessPrintLog command: " + command)
     result = {
         'status': 1,
-        'errorMsg': "",
         'errorLog': "",
         'output': ""
     }

@@ -43,10 +43,10 @@ CONFIG_CONST.FAIL_STATUS = 2
 CONFIG_CONST.MAVEN_TUYA_RELEASE_PATH = 'http://112.124.7.102:8081/nexus/content/repositories/releases/com/tuya/smart/'
 CONFIG_CONST.MAVEN_RELEASE_PATH = 'http://112.124.7.102:8081/nexus/content/repositories/releases/'
 
-CONFIG_CONST.CONFIG = '''{
-  "china": [
-    "chinamall"
-  ],
-  "international": [
-  ]
-}'''
+BUILD_STATUS = {
+    "UNBUILD": 1,
+    "BUILDING": 2,
+    "SUCCESS": 3,
+    "FAILURE": 4
+}
+

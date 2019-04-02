@@ -11,12 +11,14 @@ base_url = 'http://192.168.0.109:8083/'
 
 def post(url, data=None, **kwargs):
     response = requests.post(base_url + url, data)
+    print response.json()
     if 'callback' in kwargs:
         kwargs['callback'](response.json())
 
 
 def get(url, data=None, **kwargs):
     response = requests.get(base_url + url, data)
+    print response.json()
     if not response.json()['success']:
         kwargs['callback'](response.json()['msg'])
     if 'callback' in kwargs:
