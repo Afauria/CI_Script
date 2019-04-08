@@ -6,6 +6,7 @@ import subprocess
 import traceback
 from constant import CONFIG_CONST
 
+
 def mkdir(path):
     # 去除首位空格
     path = path.strip()
@@ -45,6 +46,7 @@ def doSubprocess(command, is_record_to_file=False):
     }
     try:
         result['output'] = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+        print "subprocess output:" + result['output']
         result["status"] = CONFIG_CONST.SUCCESS_STATUS
 
     except subprocess.CalledProcessError, exc:
@@ -62,7 +64,6 @@ def doSubprocess(command, is_record_to_file=False):
     finally:
         return result
 
-
 # def writeErrorLog(msg):
 #     mkdir('/tmp/android-build')
 #     time_str = time.strftime('%Y%m%d-%H%M%S')
@@ -71,4 +72,3 @@ def doSubprocess(command, is_record_to_file=False):
 #     oss_log_path = upload_file(log_path)
 #     # print('oss_log_path', oss_log_path)
 #     return oss_log_path
-

@@ -3,7 +3,7 @@
 import sys
 import argparse
 from util import aries_util
-from util.constant import CONFIG_CONST,BUILD_STATUS
+from util.constant import CONFIG_CONST, BUILD_STATUS
 from util import request
 
 reload(sys)
@@ -17,7 +17,8 @@ def upload_maven(module_name):
 
 def modify_build_version(module_name, build_version):
     # sed:-i表示直接修改源文件：sed -i 's/替换前/替换后/g' 文件名
-    modify_command = 'sed -i \"s/version \'.*\'/version \'%s\'/g\" %s/upload_nexus.gradle' % (build_version, module_name)
+    modify_command = '''sed -i "s/version '.*'/version '%s'/g" %s/upload_nexus.gradle''' % (
+    build_version, module_name)
     return aries_util.doSubprocess(modify_command)
 
 
@@ -60,7 +61,6 @@ def main(args):
     # result = upload_maven(module_name)
     # if result['status'] == CONFIG_CONST.FAIL_STATUS:
     #     return
-
 
 
 if __name__ == '__main__':
