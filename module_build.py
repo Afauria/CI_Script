@@ -5,6 +5,7 @@ import argparse
 from util import aries_util
 from util.constant import CONFIG_CONST, BUILD_STATUS
 from util import request
+from git import Repo
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -18,8 +19,33 @@ def upload_maven(module_name):
 def modify_build_version(module_name, build_version):
     # sed:-i表示直接修改源文件：sed -i 's/替换前/替换后/g' 文件名
     modify_command = '''sed -i "s/version '.*'/version '%s'/g" %s/upload_nexus.gradle''' % (
-    build_version, module_name)
+        build_version, module_name)
     return aries_util.doSubprocess(modify_command)
+
+
+# 提交代码
+def commit_update(path, branch, module_name):
+    print 'commit ci module update...'
+    result = {
+        'status': CONFIG_CONST.FAIL_STATUS,
+        'errorLog': ""
+    }
+    try:
+        repo = Repo(path)
+        git = repo.git
+
+        git.add('%s/upload_nexus.gradle' % module_name)
+        commit_msg = 'ci module build'
+        status = git.commit('--allow-empty', m=commit_msg)
+        print 'commit status: ' + status
+        print 'push branch: ' + branch
+        git.push('origin', branch)
+        result['status'] = CONFIG_CONST.SUCCESS_STATUS
+    except Exception as e:
+        print 'commit error: ' + str(e)
+        result['errorLog'] = str(e)
+    finally:
+        return result
 
 
 # metavar表示参数值，<>表示必填，通过-h参数能够查看帮助
@@ -47,16 +73,16 @@ def main(args):
     catalog = args.c
     module_build_result = {
         "moduleId": module_id,
-        "jobName": module_name,
+        "moduleName": module_name,
         "buildNum": build_num,
         "version": build_version,
         "buildStatus": BUILD_STATUS["SUCCESS"],
-        "message": "test"
+        "message": "构建成功"
     }
     result = modify_build_version(module_name, build_version)
     if result['status'] == CONFIG_CONST.FAIL_STATUS:
         module_build_result["buildStatus"] = BUILD_STATUS["FAILURE"]
-        module_build_result["message"] = result['errorLog']
+        module_build_result["message"] = "构建失败：" + result['errorLog']
     request.post("api/jenkins/notify/module", module_build_result)
     # result = upload_maven(module_name)
     # if result['status'] == CONFIG_CONST.FAIL_STATUS:

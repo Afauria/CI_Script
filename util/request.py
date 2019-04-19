@@ -6,7 +6,7 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-base_url = 'http://192.168.0.109:8083/'
+base_url = 'http://192.168.31.122:8083/'
 
 
 def post(url, data=None, **kwargs):

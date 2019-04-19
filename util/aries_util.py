@@ -48,7 +48,6 @@ def doSubprocess(command, is_record_to_file=False):
         result['output'] = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
         print "subprocess output:" + result['output']
         result["status"] = CONFIG_CONST.SUCCESS_STATUS
-
     except subprocess.CalledProcessError, exc:
         traceback.print_exc()
         if not is_record_to_file:
@@ -56,7 +55,6 @@ def doSubprocess(command, is_record_to_file=False):
         # else:
         #     result["errorLog"] = writeErrorLog(exc.output)
         # result["status"] = CONFIG_CONST.FAIL_STATUS
-
     except Exception as e:
         traceback.print_exc()
         result["errorLog"] = str(e)

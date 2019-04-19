@@ -49,4 +49,8 @@ BUILD_STATUS = {
     "SUCCESS": 3,
     "FAILURE": 4
 }
+LINK_TYPE = {
+    'ADD_MODULE': 1,
+    'REMOVE_MODULE': 2
+}
 
