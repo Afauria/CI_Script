@@ -7,7 +7,6 @@ from util.constant import CONFIG_CONST, BUILD_STATUS, LINK_TYPE
 from git import Repo
 from util import request
 import json
-import subprocess
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -76,6 +75,9 @@ def commit_update(path, branch):
         commit_msg = 'ci project build'
         status = git.commit('--allow-empty', m=commit_msg)
         print 'commit status: ' + status
+        if branch.startswith("origin/"):
+            branch = branch[7:]
+        branch = "HEAD:" + branch
         print 'push branch: ' + branch
         git.push('origin', branch)
         result['status'] = CONFIG_CONST.SUCCESS_STATUS
@@ -96,6 +98,7 @@ def main(args):
     build_version = args.v
     build_num = args.i
     project_modules = args.l
+    branch = args.b
     print 'project modules: ' + project_modules
     project_build_result = {
         "projectId": project_id,
@@ -110,7 +113,13 @@ def main(args):
     if result['status'] == CONFIG_CONST.FAIL_STATUS:
         project_build_result["buildStatus"] = BUILD_STATUS["FAILURE"]
         project_build_result["message"] = "项目%s构建失败：%s" % (project_name, result['errorLog'])
-    request.post("api/jenkins/notify/project", project_build_result)
+        return request.post("api/jenkins/notify/project", project_build_result)
+    result = commit_update(".", branch)
+    if result['status'] == CONFIG_CONST.FAIL_STATUS:
+        project_build_result["buildStatus"] = BUILD_STATUS["FAILURE"]
+        project_build_result["message"] = "项目%s构建失败：%s" % (project_name, result['errorLog'])
+        return request.post("api/jenkins/notify/project", project_build_result)
+    return request.post("api/jenkins/notify/project", project_build_result)
 
 
 # metavar表示参数值，<>表示必填，通过-h参数能够查看帮助

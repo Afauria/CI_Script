@@ -54,11 +54,13 @@ def doSubprocess(command, is_record_to_file=False):
             result["errorLog"] = exc.output
         # else:
         #     result["errorLog"] = writeErrorLog(exc.output)
-        # result["status"] = CONFIG_CONST.FAIL_STATUS
+        result["status"] = CONFIG_CONST.FAIL_STATUS
+        print 'errorLog: ' + result["errorLog"]
     except Exception as e:
         traceback.print_exc()
         result["errorLog"] = str(e)
         result["status"] = CONFIG_CONST.FAIL_STATUS
+        print 'errorLog: ' + result["errorLog"]
     finally:
         return result
 
