@@ -24,7 +24,8 @@ def modify_gradle(updatemodules):
         pattern = 'com.zwy.cidemo:%s:' % (data['moduleName'])
         # sed:-i表示直接修改源文件：sed -i 's/替换前/替换后/g' 文件名 / /中间是正则表达式
         # com.zwy.cidemo:module_girls:1.0.4
-        found_command = '''sed -n "/%s/p" dependencies.gradle''' % (pattern)
+        print 'found dependence...'
+        found_command = '''sed -n "/%s/p" dependencies.gradle''' % pattern
         result = aries_util.doSubprocess(found_command)
         if result['status'] == CONFIG_CONST.FAIL_STATUS:
             return result
@@ -95,7 +96,6 @@ def main(args):
     print '-----项目构建-----'
     project_id = args.p
     project_name = args.n
-    build_version = args.v
     build_num = args.i
     project_modules = args.l
     branch = args.b
@@ -104,20 +104,20 @@ def main(args):
         "projectId": project_id,
         "projectName": project_name,
         "buildNum": build_num,
-        "version": build_version,
         "buildStatus": BUILD_STATUS["SUCCESS"],
-        "message": "项目%s构建成功" % project_name
+        "message": "项目%s构建成功" % project_name,
+        "type": 1
     }
     modules = json.loads(project_modules)
     result = modify_gradle(modules)
     if result['status'] == CONFIG_CONST.FAIL_STATUS:
         project_build_result["buildStatus"] = BUILD_STATUS["FAILURE"]
-        project_build_result["message"] = "项目%s构建失败：%s" % (project_name, result['errorLog'])
+        project_build_result["message"] = "项目%s构建失败：修改gradle依赖失败"
         return request.post("api/jenkins/notify/project", project_build_result)
     result = commit_update(".", branch)
     if result['status'] == CONFIG_CONST.FAIL_STATUS:
         project_build_result["buildStatus"] = BUILD_STATUS["FAILURE"]
-        project_build_result["message"] = "项目%s构建失败：%s" % (project_name, result['errorLog'])
+        project_build_result["message"] = "项目%s构建失败：提交代码失败"
         return request.post("api/jenkins/notify/project", project_build_result)
     return request.post("api/jenkins/notify/project", project_build_result)
 
