@@ -1,5 +1,5 @@
 # -*- coding=utf-8 -*-
-
+import os
 import sys
 import argparse
 from util import aries_util
@@ -65,13 +65,25 @@ def submodule_update(branch):
 
 
 def assemble():
+    clean_command = "cd %s && ./gradlew clean" % demo_path
+    result = aries_util.doSubprocess(clean_command)
+    if result['status'] == CONFIG_CONST.FAIL_STATUS:
+        return result
     assemble_command = "cd %s && ./gradlew assembleRelease" % demo_path
     return aries_util.doSubprocess(assemble_command)
 
 
+def find_apk():
+    list_file = os.listdir(demo_path + "/CIDemo_AppShell/build/outputs/apk/release")
+    for file_name in list_file:
+        if re.findall(r"CIDemo_App.*\.apk", file_name):
+            return file_name
+
+
 # 上传apk地址
 def upload_apk():
-    apk_path = demo_path + "/CIDemo_AppShell/build/outputs/apk/release/CIDemo_AppShell-release.apk"
+    apk_name = find_apk()
+    apk_path = demo_path + "/CIDemo_AppShell/build/outputs/apk/release/%s" % apk_name
     upload_command = '''curl -F "file=@%s" -F "uKey=%s" -F "_api_key=%s" https://qiniu-storage.pgyer.com/apiv1/app/upload''' % (
         apk_path, u_key, api_key)
     return aries_util.doSubprocess(upload_command)
